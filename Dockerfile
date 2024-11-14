@@ -1,5 +1,5 @@
-# Use the Python 3 official image
-FROM python:3
+# Use Python 3.11 instead of latest
+FROM python:3.11-slim
 
 # Run in unbuffered mode
 ENV PYTHONUNBUFFERED=1 
