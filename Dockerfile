@@ -1,17 +1,17 @@
-# Use Python 3.9 slim image
-FROM python:3.9-slim
+# Use the Python 3 official image
+FROM python:3
 
-# Set working directory
+# Run in unbuffered mode
+ENV PYTHONUNBUFFERED=1 
+
+# Create and change to the app directory
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
-COPY requirements.txt .
+# Copy local code to the container image
+COPY . ./
 
-# Install dependencies
+# Install project dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY . .
-
-# Run the application with Gunicorn using shell form to expand environment variables
+# Run the web service on container startup with our specific configurations
 CMD gunicorn --bind "0.0.0.0:$PORT" --workers 4 --timeout 120 app:app 
