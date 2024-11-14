@@ -4,18 +4,13 @@ FROM python:3
 # Run in unbuffered mode
 ENV PYTHONUNBUFFERED=1 
 
-# Install system dependencies and Rust
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libffi-dev \
     libssl-dev \
     python3-dev \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-# Add Cargo to PATH
-ENV PATH="/root/.cargo/bin:${PATH}"
+    && rm -rf /var/lib/apt/lists/*
 
 # Create and change to the app directory
 WORKDIR /app
