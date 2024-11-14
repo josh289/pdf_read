@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request
 from main import summarize_pdf
 
@@ -11,4 +12,5 @@ def extract_pdf():
     return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False, port=8080) 
+    port = int(os.getenv("PORT", default=5000))
+    app.run(host='0.0.0.0', debug=False, port=port) 
