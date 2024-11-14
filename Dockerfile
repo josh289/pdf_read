@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libssl-dev \
     python3-dev \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Create and change to the app directory

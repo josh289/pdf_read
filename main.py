@@ -1,10 +1,9 @@
 import os
-import fitz  # PyMuPDF
+import pdfplumber
 import base64
 import io
 import json
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 
 # Load environment variables from the .env file
@@ -15,7 +14,7 @@ async def extract_page_text(page):
     try:
         # Run CPU-intensive text extraction in a thread pool
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, lambda: page.get_text("text") or "")
+        return await loop.run_in_executor(None, lambda: page.extract_text() or "")
     except Exception as e:
         print(f"Error extracting text from page: {str(e)}")
         return ""
@@ -24,19 +23,14 @@ async def extract_pdf_text(pdf_data):
     """Extract text from the PDF data using async processing."""
     try:
         # Open PDF from memory buffer
-        pdf_document = fitz.open(stream=pdf_data, filetype="pdf")
-        
-        # Create tasks for all pages
-        tasks = [extract_page_text(pdf_document[i]) 
-                for i in range(len(pdf_document))]
-        
-        # Process all pages concurrently
-        texts = await asyncio.gather(*tasks)
-        
-        # Clean up
-        pdf_document.close()
-        
-        return "\n".join(text.strip() for text in texts if text)
+        with pdfplumber.open(io.BytesIO(pdf_data)) as pdf:
+            # Create tasks for all pages
+            tasks = [extract_page_text(page) for page in pdf.pages]
+            
+            # Process all pages concurrently
+            texts = await asyncio.gather(*tasks)
+            
+            return "\n".join(text.strip() for text in texts if text)
     except Exception as e:
         raise Exception(f"Error processing PDF: {str(e)}")
 
