@@ -11,4 +11,4 @@ def extract_pdf():
     return response
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080) 
+    app.run(host='0.0.0.0', debug=False, port=8080) 
