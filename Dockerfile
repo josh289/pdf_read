@@ -13,5 +13,5 @@ COPY . ./
 # Install project dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Run the web service on container startup with our specific configurations
-CMD gunicorn --bind "0.0.0.0:$PORT" --workers 4 --timeout 120 app:app 
+# Run the web service on container startup
+CMD uvicorn app:app --host 0.0.0.0 --port $PORT 

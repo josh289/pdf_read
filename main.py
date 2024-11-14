@@ -3,30 +3,35 @@ import fitz  # PyMuPDF
 import base64
 import io
 import json
+import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 
 # Load environment variables from the .env file
 load_dotenv()
 
-def extract_page_text(page):
-    """Extract text from a single PDF page."""
+async def extract_page_text(page):
+    """Extract text from a single PDF page asynchronously."""
     try:
-        return page.get_text("text") or ""
+        # Run CPU-intensive text extraction in a thread pool
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, lambda: page.get_text("text") or "")
     except Exception as e:
         print(f"Error extracting text from page: {str(e)}")
         return ""
 
-def extract_pdf_text(pdf_data):
-    """Extract text from the PDF data using parallel processing."""
+async def extract_pdf_text(pdf_data):
+    """Extract text from the PDF data using async processing."""
     try:
         # Open PDF from memory buffer
         pdf_document = fitz.open(stream=pdf_data, filetype="pdf")
         
-        # Use ThreadPoolExecutor for parallel processing
-        with ThreadPoolExecutor() as executor:
-            # Map the extract_page_text function to all pages
-            texts = list(executor.map(extract_page_text, [pdf_document[i] for i in range(len(pdf_document))]))
+        # Create tasks for all pages
+        tasks = [extract_page_text(pdf_document[i]) 
+                for i in range(len(pdf_document))]
+        
+        # Process all pages concurrently
+        texts = await asyncio.gather(*tasks)
         
         # Clean up
         pdf_document.close()
